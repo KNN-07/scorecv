@@ -420,7 +420,7 @@
       const initialArr = table.data[initialOption];
       let rankingIndex = -1;
       for (let i = 0; i < initialArr.length; i++) {
-        if (initialScore <= initialArr[i]) {
+        if (initialScore < initialArr[i]) {
           rankingIndex = i;
         }
       }
