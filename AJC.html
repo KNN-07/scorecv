@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>AJC Converter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 0;
+      transition: background 0.3s, color 0.3s;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    header {
+      width: 100%;
+      background: linear-gradient(90deg, #2980b9 0%, #6dd5fa 100%);
+      color: #fff;
+      padding: 32px 0 24px 0;
+      text-align: center;
+      box-shadow: 0 2px 8px #ccc;
+      margin-bottom: 0;
+    }
+    .container {
+      max-width: 480px;
+      margin: 24px auto 40px auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(204, 230, 255, 0.4);
+      padding: 32px 24px 24px 24px;
+      transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+      position: relative;
+    }
+    .form-group {
+      margin-bottom: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+    label {
+      font-weight: 600;
+      color: #2980b9;
+      margin-bottom: 2px;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #b3d1f3;
+      background: #f7fbff;
+      color: #222;
+      font-size: 1rem;
+      transition: background 0.3s, color 0.3s, border 0.3s;
+      outline: none;
+      box-sizing: border-box;
+    }
+    select:focus, input[type="number"]:focus {
+      border: 1.5px solid #2980b9;
+      background: #eaf6ff;
+    }
+    input[type="number"]:invalid {
+      border-color: #c0392b;
+      background: #ffebee;
+    }
+    .container.darkmode input[type="number"]:invalid {
+      border-color: #ff6b6b;
+      background: #2d1b1b;
+    }
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    button {
+      padding: 12px 24px;
+      background: linear-gradient(90deg, #2980b9 0%, #6dd5fa 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #cce6ff;
+      transition: background 0.3s, color 0.3s, transform 0.2s;
+      outline: none;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #3498db 0%, #6dd5fa 100%);
+      transform: translateY(-1px);
+    }
+    button:focus {
+      outline: 2px solid #2980b9;
+      outline-offset: 2px;
+    }
+    button:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+      transform: none;
+    }
+    button:disabled:hover {
+      background: #bdc3c7;
+      transform: none;
+    }
+    #darkmode-toggle {
+      font-size: 1.1rem;
+      padding: 10px 18px;
+      margin-top: 0;
+      background: #23262f;
+      color: #fff;
+      border-radius: 8px;
+      border: none;
+      box-shadow: 0 2px 8px #bbb;
+      transition: background 0.3s, color 0.3s, transform 0.2s;
+      cursor: pointer;
+      outline: none;
+    }
+    #darkmode-toggle:hover {
+      background: #181a20;
+      color: #ffe066;
+      transform: translateY(-1px);
+    }
+    #darkmode-toggle:focus {
+      outline: 2px solid #ffe066;
+      outline-offset: 2px;
+    }
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 24px;
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 400px;
+      background: inherit;
+      color: inherit;
+      transition: background 0.3s, color 0.3s;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 8px;
+      border: 1px solid #b3d1f3;
+      text-align: center;
+      font-size: 1.05em;
+    }
+    th {
+      background: #2980b9;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .error {
+      color: #c0392b;
+      margin-top: 18px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.1em;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(192, 57, 43, 0.1);
+      border: 1px solid rgba(192, 57, 43, 0.3);
+      animation: fadeIn 0.3s ease-in;
+    }
+    .container.darkmode .error {
+      color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+    }
+    .note {
+      margin-top: 10px;
+      color: #555;
+      font-style: italic;
+      background: #eaf6ff;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 1em;
+      transition: background 0.3s, color 0.3s;
+    }
+    @media (max-width: 600px) {
+      .container { 
+        padding: 20px 16px; 
+        margin: 0 16px 40px 16px;
+        max-width: none;
+      }
+      th, td { padding: 8px 6px; font-size: 0.9em; }
+      .actions { 
+        flex-direction: column; 
+        gap: 12px; 
+      }
+      button {
+        width: 100%;
+        padding: 14px 24px;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+    body.darkmode {
+      background: #181a20;
+      color: #e0e0e0;
+    }
+    header.darkmode {
+      background: linear-gradient(90deg, #23262f 0%, #181a20 100%);
+      color: #ffe066;
+    }
+    .container.darkmode {
+      background: #23262f;
+      color: #e0e0e0;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    }
+    .container.darkmode label {
+      color: #ffe066;
+    }
+    .container.darkmode select,
+    .container.darkmode input[type="number"] {
+      background: #181a20;
+      color: #e0e0e0;
+      border: 1px solid #404040;
+    }
+    .container.darkmode select:focus,
+    .container.darkmode input[type="number"]:focus {
+      border: 1.5px solid #ffe066;
+      background: #23262f;
+    }
+    .container.darkmode td {
+      border: 1px solid #404040;
+    }
+    td.darkmode {
+      border: 1px solid #404040;
+    }
+    .note.darkmode {
+      background: #181a20;
+      color: #b0b0b0;
+      border: 1px solid #404040;
+    }
+    th.darkmode {
+      background: #181a20;
+      color: #ffe066;
+      border: 1px solid #404040;
+    }
+    #darkmode-toggle.darkmode {
+      background: #ffe066;
+      color: #23262f;
+    }
+    #darkmode-toggle.darkmode:hover {
+      background: #ffd700;
+      color: #181a20;
+    }
+    #darkmode-toggle.darkmode:focus {
+      outline: 2px solid #23262f;
+    }
+  </style>
+</head>
+<body>
+  <header id="main-header">
+    <h1>AJC Converter</h1>
+    <div style="font-size:1.1em; font-weight:400; margin-top:8px;">Quy đổi điểm chuẩn các phương thức tuyển sinh AJC</div>
+  </header>
+  <div class="container" id="main-container">
+    <form id="ftu-form" autocomplete="off">
+      <div class="form-group">
+        <label for="thang">Chọn thang điểm:</label>
+        <select id="thang">
+          <option value="30">Thang 30</option>
+          <option value="40">Thang 40</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="case">Chọn phương thức điểm đầu vào:</label>
+        <select id="case">
+          <option value="THPT">THPT</option>
+          <option value="HOCBA">Học bạ</option>
+          <option value="KETHOP">Kết hợp</option>
+        </select>
+      </div>
+      <div id="note" class="note"></div>
+      <div class="form-group" style="display: none;">
+        <label for="option">Chọn loại điểm ban đầu:</label>
+        <select id="option"></select>
+      </div>
+      <div class="form-group">
+        <label for="score">Nhập điểm ban đầu:</label>
+        <input type="number" id="score" step="0.01" min="18" max="40" value="22">
+      </div>
+      <div class="actions">
+        <button type="button" onclick="convert()">Quy đổi điểm</button>
+        <button type="button" id="darkmode-toggle">🌙 Dark Mode</button>
+      </div>
+    </form>
+    <div id="error" class="error"></div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // AJC conversion ranges - organized by scale and method type
+    const conversionRanges = {
+      '30': {
+        'THPT': [ // THPT (Thang 30)
+          { level: 1, min: 18, max: 20 },
+          { level: 2, min: 20, max: 22 },
+          { level: 3, min: 22, max: 24 },
+          { level: 4, min: 24, max: 26 },
+          { level: 5, min: 26, max: 27 },
+          { level: 6, min: 27, max: 30 }
+        ],
+        'HOCBA': [ // Học bạ (Thang 30)
+          { level: 1, min: 21.95, max: 23.58 },
+          { level: 2, min: 23.58, max: 25.22 },
+          { level: 3, min: 25.22, max: 26.85 },
+          { level: 4, min: 26.85, max: 28.49 },
+          { level: 5, min: 28.49, max: 29.31 },
+          { level: 6, min: 29.31, max: 30 }
+        ],
+        'KETHOP': [ // Kết hợp (Thang 30)
+          { level: 1, min: 20.80, max: 22.58 },
+          { level: 2, min: 22.58, max: 24.36 },
+          { level: 3, min: 24.36, max: 26.14 },
+          { level: 4, min: 26.14, max: 27.92 },
+          { level: 5, min: 27.92, max: 28.82 },
+          { level: 6, min: 28.82, max: 30 }
+        ]
+      },
+      '40': {
+        'THPT': [ // THPT (Thang 40)
+          { level: 1, min: 25, max: 27 },
+          { level: 2, min: 27, max: 29 },
+          { level: 3, min: 29, max: 31 },
+          { level: 4, min: 31, max: 33 },
+          { level: 5, min: 33, max: 35 },
+          { level: 6, min: 35, max: 37 },
+          { level: 7, min: 37, max: 40 }
+        ],
+        'HOCBA': [ // Học bạ (Thang 40)
+          { level: 1, min: 29.02, max: 30.75 },
+          { level: 2, min: 30.75, max: 32.47 },
+          { level: 3, min: 32.47, max: 34.19 },
+          { level: 4, min: 34.19, max: 35.91 },
+          { level: 5, min: 35.91, max: 37.64 },
+          { level: 6, min: 37.64, max: 39.36 },
+          { level: 7, min: 39.36, max: 40 }
+        ],
+        'KETHOP': [ // Kết hợp (Thang 40)
+          { level: 1, min: 27.35, max: 29.08 },
+          { level: 2, min: 29.08, max: 30.82 },
+          { level: 3, min: 30.82, max: 32.55 },
+          { level: 4, min: 32.55, max: 34.28 },
+          { level: 5, min: 34.28, max: 36.01 },
+          { level: 6, min: 36.01, max: 37.75 },
+          { level: 7, min: 37.75, max: 40 }
+        ]
+      }
+    };
+
+    // Method names and descriptions
+    const methodNames = {
+      'THPT': 'THPT',
+      'HOCBA': 'Học bạ',
+      'KETHOP': 'Kết hợp'
+    };
+
+    // Notes for each method
+    const notes = {
+      'THPT': "Chuyển đổi từ điểm THPT sang các phương thức khác trong cùng thang điểm theo hệ thống phân mức AJC",
+      'HOCBA': "Chuyển đổi từ điểm Học bạ sang các phương thức khác trong cùng thang điểm theo hệ thống phân mức AJC", 
+      'KETHOP': "Chuyển đổi từ điểm Kết hợp sang các phương thức khác trong cùng thang điểm theo hệ thống phân mức AJC"
+    };
+
+    // Update note and input validation based on method
+    function updateOptions() {
+      const thang = document.getElementById('thang').value;
+      const method = document.getElementById('case').value;
+      const scoreInput = document.getElementById('score');
+      
+      // Update note
+      const noteText = notes[method] || "";
+      const fullNote = noteText.replace("trong cùng thang điểm", `trong Thang ${thang}`);
+      document.getElementById('note').textContent = fullNote;
+      
+      // Update input constraints based on thang and method
+      const ranges = conversionRanges[thang] && conversionRanges[thang][method];
+      if (ranges && ranges.length > 0) {
+        const minScore = Math.min(...ranges.map(r => r.min));
+        const maxScore = Math.max(...ranges.map(r => r.max));
+        scoreInput.min = minScore;
+        scoreInput.max = maxScore;
+        
+        // Set default value based on thang and method
+        if (thang === '40') {
+          if (method === 'THPT') {
+            scoreInput.value = '30';
+          } else {
+            scoreInput.value = '32';
+          }
+        } else {
+          if (method === 'THPT') {
+            scoreInput.value = '22';
+          } else {
+            scoreInput.value = '25';
+          }
+        }
+      }
+    }
+    document.getElementById('thang').addEventListener('change', updateOptions);
+    document.getElementById('case').addEventListener('change', updateOptions);
+    updateOptions();
+
+    // Add keyboard support
+    document.getElementById('score').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        convert();
+      }
+    });
+
+    // Find which level a score belongs to
+    function findLevel(thang, method, score) {
+      const ranges = conversionRanges[thang] && conversionRanges[thang][method];
+      if (!ranges) return null;
+      
+      for (let range of ranges) {
+        if (score >= range.min && score <= range.max) {
+          return range.level;
+        }
+      }
+      return null;
+    }
+
+    // Convert score from one method to another using level-based conversion
+    function convertBetweenMethods(thang, fromMethod, toMethod, inputScore) {
+      // Find the level of the input score
+      const level = findLevel(thang, fromMethod, inputScore);
+      if (level === null) return null;
+      
+      // Find the corresponding range in the target method
+      const targetRanges = conversionRanges[thang] && conversionRanges[thang][toMethod];
+      if (!targetRanges) return null;
+      
+      const targetRange = targetRanges.find(r => r.level === level);
+      if (!targetRange) return null;
+      
+      // Calculate position within the source range
+      const sourceRanges = conversionRanges[thang][fromMethod];
+      const sourceRange = sourceRanges.find(r => r.level === level);
+      
+      const position = (inputScore - sourceRange.min) / (sourceRange.max - sourceRange.min);
+      
+      // Apply the same position to the target range
+      const result = targetRange.min + position * (targetRange.max - targetRange.min);
+      
+      return {
+        score: result,
+        level: level,
+        sourceRange: sourceRange,
+        targetRange: targetRange
+      };
+    }
+
+    // AJC Conversion logic
+    function ajcConverter(thang, fromMethod, inputScore) {
+      const results = {};
+      
+      // Convert to all other methods in the same thang
+      Object.keys(conversionRanges[thang]).forEach(toMethod => {
+        if (fromMethod !== toMethod) {
+          const conversion = convertBetweenMethods(thang, fromMethod, toMethod, inputScore);
+          if (conversion) {
+            results[toMethod] = conversion;
+          }
+        }
+      });
+      
+      return results;
+    }
+
+    // Main convert function
+    function convert() {
+      const convertButton = document.querySelector('button[onclick="convert()"]');
+      const originalText = convertButton.textContent;
+      convertButton.textContent = 'Đang xử lý...';
+      convertButton.disabled = true;
+      
+      // Add small delay for visual feedback
+      setTimeout(() => {
+        const thang = document.getElementById('thang').value;
+        const fromMethod = document.getElementById('case').value;
+        const inputScore = parseFloat(document.getElementById('score').value);
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+        errorDiv.textContent = '';
+        resultDiv.innerHTML = '';
+
+        if (isNaN(inputScore)) {
+          errorDiv.textContent = 'Vui lòng nhập điểm hợp lệ.';
+          convertButton.textContent = originalText;
+          convertButton.disabled = false;
+          return;
+        }
+
+        const results = ajcConverter(thang, fromMethod, inputScore);
+        if (Object.keys(results).length === 0) {
+          errorDiv.textContent = 'Điểm nhập vào không nằm trong khoảng hợp lệ. Vui lòng kiểm tra lại.';
+          convertButton.textContent = originalText;
+          convertButton.disabled = false;
+          return;
+        }
+
+        // Build result table
+        const isDarkMode = document.body.classList.contains('darkmode');
+        const darkClass = isDarkMode ? ' class="darkmode"' : '';
+        
+        let html = '<div class="table-responsive"><table><tr>';
+        html += `<th${darkClass}>Phương thức</th>`;
+        html += `<th${darkClass}>Điểm quy đổi</th>`;
+        html += `<th${darkClass}>Mức</th>`;
+        html += `<th${darkClass}>Khoảng điểm</th>`;
+        html += '</tr>';
+
+        // Add input row
+        const inputLevel = findLevel(thang, fromMethod, inputScore);
+        const inputRange = conversionRanges[thang][fromMethod].find(r => r.level === inputLevel);
+        html += '<tr>';
+        html += `<td${darkClass} style="background: rgba(41, 128, 185, 0.1); font-weight: bold;">${methodNames[fromMethod]} (Thang ${thang})</td>`;
+        html += `<td${darkClass} style="background: rgba(41, 128, 185, 0.1); font-weight: bold;">${inputScore.toFixed(2)}</td>`;
+        html += `<td${darkClass} style="background: rgba(41, 128, 185, 0.1); font-weight: bold;">Mức ${inputLevel}</td>`;
+        html += `<td${darkClass} style="background: rgba(41, 128, 185, 0.1); font-weight: bold;">[${inputRange.min} - ${inputRange.max}]</td>`;
+        html += '</tr>';
+
+        // Add converted results
+        Object.keys(results).forEach(toMethod => {
+          const result = results[toMethod];
+          html += '<tr>';
+          html += `<td${darkClass}>${methodNames[toMethod]} (Thang ${thang})</td>`;
+          html += `<td${darkClass}>${result.score.toFixed(2)}</td>`;
+          html += `<td${darkClass}>Mức ${result.level}</td>`;
+          html += `<td${darkClass}>[${result.targetRange.min} - ${result.targetRange.max}]</td>`;
+          html += '</tr>';
+        });
+        
+        html += '</table></div>';
+        
+        // Add explanation
+        html += `<div class="note${isDarkMode ? ' darkmode' : ''}" style="margin-top: 15px; font-size: 0.9em;">`;
+        html += `<strong>Nguyên tắc quy đổi:</strong><br>`;
+        html += `Điểm ${inputScore} thuộc <strong>Mức ${inputLevel}</strong> trong hệ thống phân loại AJC Thang ${thang}.<br>`;
+        html += `Tất cả điểm quy đổi đều tương ứng với cùng mức độ này trong cùng thang điểm, đảm bảo tính công bằng giữa các phương thức tuyển sinh.`;
+        html += `</div>`;
+        
+        resultDiv.innerHTML = html;
+        
+        convertButton.textContent = originalText;
+        convertButton.disabled = false;
+      }, 300);
+    }
+
+    // Dark mode toggle
+    const darkBtn = document.getElementById('darkmode-toggle');
+    const header = document.getElementById('main-header');
+    darkBtn.addEventListener('click', function() {
+      document.body.classList.toggle('darkmode');
+      document.getElementById('main-container').classList.toggle('darkmode');
+      document.getElementById('note').classList.toggle('darkmode');
+      header.classList.toggle('darkmode');
+      darkBtn.classList.toggle('darkmode');
+      // Re-render result table for darkmode
+      if (document.getElementById('result').innerHTML) convert();
+      darkBtn.textContent = document.body.classList.contains('darkmode') ? '☀️ Light Mode' : '🌙 Dark Mode';
+    });
+  </script>
+</body>
+</html>
