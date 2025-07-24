@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>DAV Converter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 0;
+      transition: background 0.3s, color 0.3s;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    header {
+      width: 100%;
+      background: linear-gradient(90deg, #2980b9 0%, #6dd5fa 100%);
+      color: #fff;
+      padding: 32px 0 24px 0;
+      text-align: center;
+      box-shadow: 0 2px 8px #ccc;
+      margin-bottom: 0;
+    }
+    .container {
+      max-width: 480px;
+      margin: 24px auto 40px auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(204, 230, 255, 0.4);
+      padding: 32px 24px 24px 24px;
+      transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+      position: relative;
+    }
+    .form-group {
+      margin-bottom: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+    label {
+      font-weight: 600;
+      color: #2980b9;
+      margin-bottom: 2px;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #b3d1f3;
+      background: #f7fbff;
+      color: #222;
+      font-size: 1rem;
+      transition: background 0.3s, color 0.3s, border 0.3s;
+      outline: none;
+      box-sizing: border-box;
+    }
+    select:focus, input[type="number"]:focus {
+      border: 1.5px solid #2980b9;
+      background: #eaf6ff;
+    }
+    input[type="number"]:invalid {
+      border-color: #c0392b;
+      background: #ffebee;
+    }
+    .container.darkmode input[type="number"]:invalid {
+      border-color: #ff6b6b;
+      background: #2d1b1b;
+    }
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    button {
+      padding: 12px 24px;
+      background: linear-gradient(90deg, #2980b9 0%, #6dd5fa 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #cce6ff;
+      transition: background 0.3s, color 0.3s, transform 0.2s;
+      outline: none;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #3498db 0%, #6dd5fa 100%);
+      transform: translateY(-1px);
+    }
+    button:focus {
+      outline: 2px solid #2980b9;
+      outline-offset: 2px;
+    }
+    button:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+      transform: none;
+    }
+    button:disabled:hover {
+      background: #bdc3c7;
+      transform: none;
+    }
+    #darkmode-toggle {
+      font-size: 1.1rem;
+      padding: 10px 18px;
+      margin-top: 0;
+      background: #23262f;
+      color: #fff;
+      border-radius: 8px;
+      border: none;
+      box-shadow: 0 2px 8px #bbb;
+      transition: background 0.3s, color 0.3s, transform 0.2s;
+      cursor: pointer;
+      outline: none;
+    }
+    #darkmode-toggle:hover {
+      background: #181a20;
+      color: #ffe066;
+      transform: translateY(-1px);
+    }
+    #darkmode-toggle:focus {
+      outline: 2px solid #ffe066;
+      outline-offset: 2px;
+    }
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 24px;
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 400px;
+      background: inherit;
+      color: inherit;
+      transition: background 0.3s, color 0.3s;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 8px;
+      border: 1px solid #b3d1f3;
+      text-align: center;
+      font-size: 1.05em;
+    }
+    th {
+      background: #2980b9;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .error {
+      color: #c0392b;
+      margin-top: 18px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.1em;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(192, 57, 43, 0.1);
+      border: 1px solid rgba(192, 57, 43, 0.3);
+      animation: fadeIn 0.3s ease-in;
+    }
+    .container.darkmode .error {
+      color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+    }
+    .note {
+      margin-top: 10px;
+      color: #555;
+      font-style: italic;
+      background: #eaf6ff;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 1em;
+      transition: background 0.3s, color 0.3s;
+    }
+    @media (max-width: 600px) {
+      .container { 
+        padding: 20px 16px; 
+        margin: 0 16px 40px 16px;
+        max-width: none;
+      }
+      th, td { padding: 8px 6px; font-size: 0.9em; }
+      .actions { 
+        flex-direction: column; 
+        gap: 12px; 
+      }
+      button {
+        width: 100%;
+        padding: 14px 24px;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+    body.darkmode {
+      background: #181a20;
+      color: #e0e0e0;
+    }
+    header.darkmode {
+      background: linear-gradient(90deg, #23262f 0%, #181a20 100%);
+      color: #ffe066;
+    }
+    .container.darkmode {
+      background: #23262f;
+      color: #e0e0e0;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    }
+    .container.darkmode label {
+      color: #ffe066;
+    }
+    .container.darkmode select,
+    .container.darkmode input[type="number"] {
+      background: #181a20;
+      color: #e0e0e0;
+      border: 1px solid #404040;
+    }
+    .container.darkmode select:focus,
+    .container.darkmode input[type="number"]:focus {
+      border: 1.5px solid #ffe066;
+      background: #23262f;
+    }
+    .container.darkmode td {
+      border: 1px solid #404040;
+    }
+    td.darkmode {
+      border: 1px solid #404040;
+    }
+    .note.darkmode {
+      background: #181a20;
+      color: #b0b0b0;
+      border: 1px solid #404040;
+    }
+    th.darkmode {
+      background: #181a20;
+      color: #ffe066;
+      border: 1px solid #404040;
+    }
+    #darkmode-toggle.darkmode {
+      background: #ffe066;
+      color: #23262f;
+    }
+    #darkmode-toggle.darkmode:hover {
+      background: #ffd700;
+      color: #181a20;
+    }
+    #darkmode-toggle.darkmode:focus {
+      outline: 2px solid #23262f;
+    }
+  </style>
+</head>
+<body>
+  <header id="main-header">
+    <h1>DAV Converter</h1>
+    <div style="font-size:1.1em; font-weight:400; margin-top:8px;">Quy đổi điểm chuẩn các phương thức tuyển sinh DAV</div>
+  </header>
+  <div class="container" id="main-container">
+    <form id="ftu-form" autocomplete="off">
+      <div class="form-group">
+        <label for="case">Chọn phương thức chuyển đổi:</label>
+        <select id="case">
+          <option value="1">Từ THPT (D01) sang Kết hợp (PT2&3)</option>
+          <option value="2">Từ Kết hợp (PT2&3) sang THPT (D01)</option>
+        </select>
+      </div>
+      <div id="note" class="note"></div>
+      <div class="form-group" style="display: none;">
+        <label for="option">Chọn loại điểm ban đầu:</label>
+        <select id="option"></select>
+      </div>
+      <div class="form-group">
+        <label for="score">Nhập điểm ban đầu:</label>
+        <input type="number" id="score" step="0.01" min="20" max="30" value="24.8">
+      </div>
+      <div class="actions">
+        <button type="button" onclick="convert()">Quy đổi điểm</button>
+        <button type="button" id="darkmode-toggle">🌙 Dark Mode</button>
+      </div>
+    </form>
+    <div id="error" class="error"></div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // DAV conversion ranges
+    const conversionRanges = {
+      1: { // THPT to Kết hợp
+        thptRanges: [
+          { min: 27, max: 30, targetMin: 28.5, targetMax: 30 },      // Khoảng 1
+          { min: 25.5, max: 27, targetMin: 27.5, targetMax: 28.5 },  // Khoảng 2
+          { min: 24.5, max: 25.5, targetMin: 27, targetMax: 27.5 },  // Khoảng 3
+          { min: 23, max: 24.5, targetMin: 26, targetMax: 27 },      // Khoảng 4
+          { min: 22, max: 23, targetMin: 23.2, targetMax: 26 }       // Khoảng 5
+        ]
+      },
+      2: { // Kết hợp to THPT
+        thptRanges: [
+          { min: 28.5, max: 30, targetMin: 27, targetMax: 30 },      // Khoảng 1
+          { min: 27.5, max: 28.5, targetMin: 25.5, targetMax: 27 },  // Khoảng 2
+          { min: 27, max: 27.5, targetMin: 24.5, targetMax: 25.5 },  // Khoảng 3
+          { min: 26, max: 27, targetMin: 23, targetMax: 24.5 },      // Khoảng 4
+          { min: 23.2, max: 26, targetMin: 22, targetMax: 23 }       // Khoảng 5
+        ]
+      }
+    };
+
+    // Notes for each case
+    const notes = {
+      1: "Chuyển đổi từ điểm chuẩn THPT (D01) sang điểm chuẩn tương đương Phương thức Kết hợp (PT2&3). Công thức: y = c + ((x - a)/(b - a)) × (d - c)",
+      2: "Chuyển đổi từ điểm chuẩn Kết hợp (PT2&3) sang điểm chuẩn tương đương THPT (D01). Công thức: y = c + ((x - a)/(b - a)) × (d - c)"
+    };
+
+    // Update note based on case
+    function updateOptions() {
+      const caseVal = document.getElementById('case').value;
+      document.getElementById('note').textContent = notes[caseVal] || "";
+    }
+    document.getElementById('case').addEventListener('change', updateOptions);
+    updateOptions();
+
+    // Add keyboard support
+    document.getElementById('score').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        convert();
+      }
+    });
+
+    // DAV Conversion logic using the formula: y = c + ((x - a)/(b - a)) × (d - c)
+    function davConverter(caseVal, inputScore) {
+      const ranges = conversionRanges[caseVal].thptRanges;
+      
+      // Find which range the input score falls into
+      for (let range of ranges) {
+        if (inputScore >= range.min && inputScore <= range.max) {
+          // Apply the formula: y = c + ((x - a)/(b - a)) × (d - c)
+          const x = inputScore;
+          const a = range.min;
+          const b = range.max;
+          const c = range.targetMin;
+          const d = range.targetMax;
+          
+          const result = c + ((x - a) / (b - a)) * (d - c);
+          return result;
+        }
+      }
+      
+      return null; // Score doesn't fall in any valid range
+    }
+
+    // Main convert function
+    function convert() {
+      const convertButton = document.querySelector('button[onclick="convert()"]');
+      const originalText = convertButton.textContent;
+      convertButton.textContent = 'Đang xử lý...';
+      convertButton.disabled = true;
+      
+      // Add small delay for visual feedback
+      setTimeout(() => {
+        const caseVal = document.getElementById('case').value;
+        const inputScore = parseFloat(document.getElementById('score').value);
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+        errorDiv.textContent = '';
+        resultDiv.innerHTML = '';
+
+        if (isNaN(inputScore)) {
+          errorDiv.textContent = 'Vui lòng nhập điểm hợp lệ.';
+          convertButton.textContent = originalText;
+          convertButton.disabled = false;
+          return;
+        }
+
+        const result = davConverter(caseVal, inputScore);
+        if (result === null) {
+          errorDiv.textContent = 'Điểm nhập vào không nằm trong khoảng hợp lệ. Vui lòng kiểm tra lại.';
+          convertButton.textContent = originalText;
+          convertButton.disabled = false;
+          return;
+        }
+
+        // Build result table
+        const fromMethod = caseVal === '1' ? 'THPT (D01)' : 'Kết hợp (PT2&3)';
+        const toMethod = caseVal === '1' ? 'Kết hợp (PT2&3)' : 'THPT (D01)';
+        
+        let html = '<div class="table-responsive"><table><tr>';
+        html += `<th${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>Điểm đầu vào</th>`;
+        html += `<th${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>Phương thức</th>`;
+        html += `<th${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>Điểm quy đổi</th>`;
+        html += `<th${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>Phương thức</th>`;
+        html += '</tr><tr>';
+        html += `<td${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>${inputScore.toFixed(2)}</td>`;
+        html += `<td${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>${fromMethod}</td>`;
+        html += `<td${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>${result.toFixed(2)}</td>`;
+        html += `<td${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>${toMethod}</td>`;
+        html += '</tr></table></div>';
+        
+        // Add example calculation
+        const ranges = conversionRanges[caseVal].thptRanges;
+        for (let range of ranges) {
+          if (inputScore >= range.min && inputScore <= range.max) {
+            html += `<div class="note${document.body.classList.contains('darkmode') ? ' darkmode' : ''}" style="margin-top: 15px; font-size: 0.9em;">`;
+            html += `<strong>Chi tiết tính toán:</strong><br>`;
+            html += `Điểm ${inputScore} thuộc khoảng [${range.min} - ${range.max}] → quy đổi về [${range.targetMin} - ${range.targetMax}]<br>`;
+            html += `Công thức: y = ${range.targetMin} + ((${inputScore} - ${range.min})/(${range.max} - ${range.min})) × (${range.targetMax} - ${range.targetMin}) = ${result.toFixed(2)}`;
+            html += `</div>`;
+            break;
+          }
+        }
+        
+        resultDiv.innerHTML = html;
+        
+        convertButton.textContent = originalText;
+        convertButton.disabled = false;
+      }, 300);
+    }
+
+    // Dark mode toggle
+    const darkBtn = document.getElementById('darkmode-toggle');
+    const header = document.getElementById('main-header');
+    darkBtn.addEventListener('click', function() {
+      document.body.classList.toggle('darkmode');
+      document.getElementById('main-container').classList.toggle('darkmode');
+      document.getElementById('note').classList.toggle('darkmode');
+      header.classList.toggle('darkmode');
+      darkBtn.classList.toggle('darkmode');
+      // Re-render result table for darkmode
+      if (document.getElementById('result').innerHTML) convert();
+      darkBtn.textContent = document.body.classList.contains('darkmode') ? '☀️ Light Mode' : '🌙 Dark Mode';
+    });
+  </script>
+</body>
+</html>
