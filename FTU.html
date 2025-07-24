@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>FTU Converter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 0;
+      transition: background 0.3s, color 0.3s;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    header {
+      width: 100%;
+      background: linear-gradient(90deg, #2980b9 0%, #6dd5fa 100%);
+      color: #fff;
+      padding: 32px 0 24px 0;
+      text-align: center;
+      box-shadow: 0 2px 8px #ccc;
+      margin-bottom: 0;
+    }
+    .container {
+      max-width: 480px;
+      margin: 24px auto 40px auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(204, 230, 255, 0.4);
+      padding: 32px 24px 24px 24px;
+      transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+      position: relative;
+    }
+    .form-group {
+      margin-bottom: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+    label {
+      font-weight: 600;
+      color: #2980b9;
+      margin-bottom: 2px;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #b3d1f3;
+      background: #f7fbff;
+      color: #222;
+      font-size: 1rem;
+      transition: background 0.3s, color 0.3s, border 0.3s;
+      outline: none;
+      box-sizing: border-box;
+    }
+    select:focus, input[type="number"]:focus {
+      border: 1.5px solid #2980b9;
+      background: #eaf6ff;
+    }
+    input[type="number"]:invalid {
+      border-color: #c0392b;
+      background: #ffebee;
+    }
+    .container.darkmode input[type="number"]:invalid {
+      border-color: #ff6b6b;
+      background: #2d1b1b;
+    }
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    button {
+      padding: 12px 24px;
+      background: linear-gradient(90deg, #2980b9 0%, #6dd5fa 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #cce6ff;
+      transition: background 0.3s, color 0.3s, transform 0.2s;
+      outline: none;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #3498db 0%, #6dd5fa 100%);
+      transform: translateY(-1px);
+    }
+    button:focus {
+      outline: 2px solid #2980b9;
+      outline-offset: 2px;
+    }
+    button:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+      transform: none;
+    }
+    button:disabled:hover {
+      background: #bdc3c7;
+      transform: none;
+    }
+    #darkmode-toggle {
+      font-size: 1.1rem;
+      padding: 10px 18px;
+      margin-top: 0;
+      background: #23262f;
+      color: #fff;
+      border-radius: 8px;
+      border: none;
+      box-shadow: 0 2px 8px #bbb;
+      transition: background 0.3s, color 0.3s, transform 0.2s;
+      cursor: pointer;
+      outline: none;
+    }
+    #darkmode-toggle:hover {
+      background: #181a20;
+      color: #ffe066;
+      transform: translateY(-1px);
+    }
+    #darkmode-toggle:focus {
+      outline: 2px solid #ffe066;
+      outline-offset: 2px;
+    }
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 24px;
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 400px;
+      background: inherit;
+      color: inherit;
+      transition: background 0.3s, color 0.3s;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 8px;
+      border: 1px solid #b3d1f3;
+      text-align: center;
+      font-size: 1.05em;
+    }
+    th {
+      background: #2980b9;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .error {
+      color: #c0392b;
+      margin-top: 18px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.1em;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(192, 57, 43, 0.1);
+      border: 1px solid rgba(192, 57, 43, 0.3);
+      animation: fadeIn 0.3s ease-in;
+    }
+    .container.darkmode .error {
+      color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+    }
+    .note {
+      margin-top: 10px;
+      color: #555;
+      font-style: italic;
+      background: #eaf6ff;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 1em;
+      transition: background 0.3s, color 0.3s;
+    }
+    @media (max-width: 600px) {
+      .container { 
+        padding: 20px 16px; 
+        margin: 0 16px 40px 16px;
+        max-width: none;
+      }
+      th, td { padding: 8px 6px; font-size: 0.9em; }
+      .actions { 
+        flex-direction: column; 
+        gap: 12px; 
+      }
+      button {
+        width: 100%;
+        padding: 14px 24px;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+    body.darkmode {
+      background: #181a20;
+      color: #e0e0e0;
+    }
+    header.darkmode {
+      background: linear-gradient(90deg, #23262f 0%, #181a20 100%);
+      color: #ffe066;
+    }
+    .container.darkmode {
+      background: #23262f;
+      color: #e0e0e0;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    }
+    .container.darkmode label {
+      color: #ffe066;
+    }
+    .container.darkmode select,
+    .container.darkmode input[type="number"] {
+      background: #181a20;
+      color: #e0e0e0;
+      border: 1px solid #404040;
+    }
+    .container.darkmode select:focus,
+    .container.darkmode input[type="number"]:focus {
+      border: 1.5px solid #ffe066;
+      background: #23262f;
+    }
+    .container.darkmode td {
+      border: 1px solid #404040;
+    }
+    td.darkmode {
+      border: 1px solid #404040;
+    }
+    .note.darkmode {
+      background: #181a20;
+      color: #b0b0b0;
+      border: 1px solid #404040;
+    }
+    th.darkmode {
+      background: #181a20;
+      color: #ffe066;
+      border: 1px solid #404040;
+    }
+    #darkmode-toggle.darkmode {
+      background: #ffe066;
+      color: #23262f;
+    }
+    #darkmode-toggle.darkmode:hover {
+      background: #ffd700;
+      color: #181a20;
+    }
+    #darkmode-toggle.darkmode:focus {
+      outline: 2px solid #23262f;
+    }
+  </style>
+</head>
+<body>
+  <header id="main-header">
+    <h1>FTU Converter</h1>
+    <div style="font-size:1.1em; font-weight:400; margin-top:8px;">Quy đổi điểm chuẩn các phương thức tuyển sinh FTU</div>
+  </header>
+  <div class="container" id="main-container">
+    <form id="ftu-form" autocomplete="off">
+      <div class="form-group">
+        <label for="case">Chọn trường hợp:</label>
+        <select id="case">
+          <option value="1">Trường hợp 1: Tiêu chuẩn</option>
+          <option value="2">Trường hợp 2: Chất lượng cao & Tiên tiến</option>
+          <option value="3">Trường hợp 3: Định hướng nghề nghiệp & quốc tế</option>
+          <option value="4">Trường hợp 4: Khoa học máy tính & Dữ liệu kinh tế</option>
+          <option value="5">Trường hợp 5: Tiêu chuẩn Ngôn ngữ thương mại</option>
+          <option value="6">Trường hợp 6: Chất lượng cao Ngôn ngữ thương mại</option>
+        </select>
+      </div>
+      <div id="note" class="note"></div>
+      <div class="form-group">
+        <label for="option">Chọn loại điểm ban đầu:</label>
+        <select id="option"></select>
+      </div>
+      <div class="form-group">
+        <label for="score">Nhập điểm ban đầu:</label>
+        <input type="number" id="score" step="0.01" min="0" max="50" value="37">
+      </div>
+      <div class="actions">
+        <button type="button" onclick="convert()">Quy đổi điểm</button>
+        <button type="button" id="darkmode-toggle">🌙 Dark Mode</button>
+      </div>
+    </form>
+    <div id="error" class="error"></div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // Data tables
+    const tables = {
+      1: {
+        columns: ["THPT(A00)", "HSGQG", "HSGTP", "HSA", "V-ACT"],
+        data: [
+          [30, 28, 27.3, 26.75, 26, 26.25, 24],
+          [30, 28.41, 28.02, 27.5, 26.62, 26.11, 25.35],
+          [30, 28.62, 28.38, 28.12, 27.81, 27.5, 27],
+          [30, 28.2, 28, 27.8, 27.6, 27.3, 27],
+          [30, 28.51, 28.4, 28.29, 28.24, 28.16, 27]
+        ]
+      },
+      2: {
+        columns: ["THPT_CCNNQT", "HSGQG_CCNNQT", "HSGTP_CCNNQT", "DGNLQT_CCNNQT"],
+        data: [
+          [30, 28.1, 27.5, 26.8, 26.2, 24.5, 23],
+          [30, 27.85, 27.5, 27.22, 27.05, 26.81, 25.5],
+          [30, 28.68, 28.57, 28.35, 27.89, 27.25, 25.5],
+          [30, 29.5, 29, 28.75, 28.5, 27.75, 26.5]
+        ]
+      },
+      3: {
+        columns: [
+          "THPT_CCNNQT", "HSGQG_CCNNQT", "HSGTP_CCNNQT", "DGNLQT_CCNNQT",
+          "THPT_A00", "HSGQG_THPT3", "HSGTP_THPT3", "DGNL_HSA", "DGNL_VACT"
+        ],
+        data: [
+          [30, 28.1, 27.5, 26.8, 26.2, 24.5, 23],
+          [30, 27.85, 27.5, 27.22, 27.05, 26.81, 26.53],
+          [30, 28.68, 28.57, 28.35, 27.89, 27.25, 25.5],
+          [30, 29.5, 29, 28.75, 28.5, 27.75, 26.5],
+          [30, 28, 27.3, 26.75, 26, 25.25, 24],
+          [30, 28.41, 28.02, 27.5, 26.62, 26.11, 25.35],
+          [30, 28.62, 28.38, 28.12, 27.81, 27.5, 27],
+          [30, 28.2, 28, 27.8, 27.6, 27.3, 27],
+          [30, 28.51, 28.4, 28.29, 28.24, 28.16, 27]
+        ]
+      },
+      4: {
+        columns: [
+          "THPT_A00", "HSGQG_THPT3", "HSGTP_THPT3", "DGNL_HSA", "DGNL_VACT",
+          "THPT_CCNNQT", "HSGQG_CCNNQT", "HSGTP_CCNNQT", "DGNLQT_CCNNQT"
+        ],
+        data: [
+          [40, 37.33, 34.8, 32],
+          [40, 39.24, 37.4, 33.52],
+          [40, 38.54, 37, 36],
+          [40, 37.25, 36.29, 36],
+          [40, 37.86, 37.55, 36],
+          [40, 37.47, 35.07, 31],
+          [40, 39.24, 37.61, 34.42],
+          [40, 38.07, 36.37, 34],
+          [40, 39, 37.33, 36]
+        ]
+      },
+      5: {
+        columns: ["THPT(D01)", "HSGQG", "HSGTP", "HSA"],
+        data: [
+          [40, 37.88, 36.3, 34.7, 30],
+          [40, 38.66, 37.62, 35.87, 33.68],
+          [40, 37.69, 37.2, 36.33, 36],
+          [40, 37.53, 37.29, 36.56, 36]
+        ]
+      },
+      6: {
+        columns: ["THPT(D01)", "HSGQG_CCNNQT", "HSGTP_CCNNQT", "DGNLQT_CCNNQT"],
+        data: [
+          [40, 37.47, 35.3, 33.3, 30],
+          [40, 38.17, 37.64, 35.86, 34.07],
+          [40, 36.13, 35.67, 35.02, 33.41],
+          [40, 38.07, 37.5, 36.62, 35.5]
+        ]
+      }
+    };
+
+    // Notes for each case
+    const notes = {
+      1: "Lưu ý: Với các bạn THPTQG thi các khối A01, D01, D02, D03, D04, D06, D07, vui lòng cộng 1 điểm để đưa điểm về tổ hợp A00, rồi mới quy đổi. Ngược lại: Khi trường công bố điểm chuẩn THPTQG cho khối A00, các bạn trừ đi 1 điểm sẽ ra điểm chuẩn cho các khối còn lại. Ví dụ: 20.5 điểm A00 -> 19.5 điểm D01",
+      2: "Lưu ý: D01 là tổ hợp gốc ở trường hợp này.",
+      3: "Lưu ý: Với các bạn THPTQG thi các khối A01, D01, D02, D03, D04, D06, D07, vui lòng cộng 1 điểm để đưa điểm về tổ hợp A00, rồi mới quy đổi. Ngược lại: Khi trường công bố điểm chuẩn THPTQG cho khối A00, các bạn trừ đi 1 điểm sẽ ra điểm chuẩn cho các khối còn lại. Ví dụ: 20.5 điểm A00 -> 19.5 điểm D01",
+      4: "",
+      5: "Lưu ý: D01 là tổ hợp gốc ở trường hợp này.",
+      6: ""
+    };
+
+    // Populate option select and note based on case
+    function updateOptions() {
+      const caseVal = document.getElementById('case').value;
+      const optionSelect = document.getElementById('option');
+      optionSelect.innerHTML = '';
+      tables[caseVal].columns.forEach((col, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = col;
+        optionSelect.appendChild(opt);
+      });
+      // Update note
+      document.getElementById('note').textContent = notes[caseVal] || "";
+    }
+    document.getElementById('case').addEventListener('change', updateOptions);
+    updateOptions();
+
+    // Add keyboard support
+    document.getElementById('score').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        convert();
+      }
+    });
+
+    // Conversion logic
+    function pointConverter(table, initialOption, initialScore, targetOption) {
+      const initialArr = table.data[initialOption];
+      let rankingIndex = -1;
+      for (let i = 0; i < initialArr.length; i++) {
+        if (initialScore <= initialArr[i]) {
+          rankingIndex = i;
+        }
+      }
+      if (rankingIndex >= initialArr.length - 1) {
+        return null;
+      } else {
+        const targetArr = table.data[targetOption];
+        const initialUpper = parseFloat(initialArr[rankingIndex]);
+        const initialLower = parseFloat(initialArr[rankingIndex + 1]);
+        const targetUpper = parseFloat(targetArr[rankingIndex]);
+        const targetLower = parseFloat(targetArr[rankingIndex + 1]);
+        const targetScore = targetLower + (targetUpper - targetLower) / (initialUpper - initialLower) * (initialScore - initialLower);
+        return targetScore;
+      }
+    }
+
+    function conversionResultTable(table, initialOption, initialScore) {
+      const optionNames = table.columns;
+      const row = {};
+      for (let idx = 0; idx < optionNames.length; idx++) {
+        const temp = pointConverter(table, initialOption, initialScore, idx);
+        if (temp === null) {
+          return null;
+        }
+        row[optionNames[idx]] = temp.toFixed(2);
+      }
+      return row;
+    }
+
+    // Main convert function
+    function convert() {
+      const convertButton = document.querySelector('button[onclick="convert()"]');
+      const originalText = convertButton.textContent;
+      convertButton.textContent = 'Đang xử lý...';
+      convertButton.disabled = true;
+      
+      // Add small delay for visual feedback
+      setTimeout(() => {
+        const caseVal = document.getElementById('case').value;
+        const initialOption = parseInt(document.getElementById('option').value);
+        const initialScore = parseFloat(document.getElementById('score').value);
+        const table = tables[caseVal];
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+        errorDiv.textContent = '';
+        resultDiv.innerHTML = '';
+
+        if (isNaN(initialScore)) {
+          errorDiv.textContent = 'Vui lòng nhập điểm hợp lệ.';
+          convertButton.textContent = originalText;
+          convertButton.disabled = false;
+          return;
+        }
+
+        const result = conversionResultTable(table, initialOption, initialScore);
+        if (!result) {
+          errorDiv.textContent = 'Không đủ điểm sàn. Chúc bạn may mắn năm sau!';
+          convertButton.textContent = originalText;
+          convertButton.disabled = false;
+          return;
+        }
+
+        // Build result table (responsive)
+        let html = '<div class="table-responsive"><table><tr>';
+        Object.keys(result).forEach(col => {
+          html += `<th${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>${col}</th>`;
+        });
+        html += '</tr><tr>';
+        Object.values(result).forEach(val => {
+          html += `<td${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>${val}</td>`;
+        });
+        html += '</tr></table></div>';
+        resultDiv.innerHTML = html;
+        
+        convertButton.textContent = originalText;
+        convertButton.disabled = false;
+      }, 300);
+    }
+    // Dark mode toggle
+    const darkBtn = document.getElementById('darkmode-toggle');
+    const header = document.getElementById('main-header');
+    darkBtn.addEventListener('click', function() {
+      document.body.classList.toggle('darkmode');
+      document.getElementById('main-container').classList.toggle('darkmode');
+      document.getElementById('note').classList.toggle('darkmode');
+      header.classList.toggle('darkmode');
+      darkBtn.classList.toggle('darkmode');
+      // Re-render result table for darkmode th
+      if (document.getElementById('result').innerHTML) convert();
+      darkBtn.textContent = document.body.classList.contains('darkmode') ? '☀️ Light Mode' : '🌙 Dark Mode';
+    });
+  </script>
+</body>
+</html>
