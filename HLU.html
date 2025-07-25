@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>HLU Converter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 0;
+      transition: background 0.3s, color 0.3s;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    header {
+      width: 100%;
+      background: linear-gradient(90deg, #2980b9 0%, #6dd5fa 100%);
+      color: #fff;
+      padding: 32px 0 24px 0;
+      text-align: center;
+      box-shadow: 0 2px 8px #ccc;
+      margin-bottom: 0;
+    }
+    .container {
+      max-width: 480px;
+      margin: 24px auto 40px auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(204, 230, 255, 0.4);
+      padding: 32px 24px 24px 24px;
+      transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+      position: relative;
+    }
+    .form-group {
+      margin-bottom: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+    label {
+      font-weight: 600;
+      color: #2980b9;
+      margin-bottom: 2px;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #b3d1f3;
+      background: #f7fbff;
+      color: #222;
+      font-size: 1rem;
+      transition: background 0.3s, color 0.3s, border 0.3s;
+      outline: none;
+      box-sizing: border-box;
+    }
+    select:focus, input[type="number"]:focus {
+      border: 1.5px solid #2980b9;
+      background: #eaf6ff;
+    }
+    input[type="number"]:invalid {
+      border-color: #c0392b;
+      background: #ffebee;
+    }
+    .container.darkmode input[type="number"]:invalid {
+      border-color: #ff6b6b;
+      background: #2d1b1b;
+    }
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    button {
+      padding: 12px 24px;
+      background: linear-gradient(90deg, #2980b9 0%, #6dd5fa 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #cce6ff;
+      transition: background 0.3s, color 0.3s, transform 0.2s;
+      outline: none;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #3498db 0%, #6dd5fa 100%);
+      transform: translateY(-1px);
+    }
+    button:focus {
+      outline: 2px solid #2980b9;
+      outline-offset: 2px;
+    }
+    button:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+      transform: none;
+    }
+    button:disabled:hover {
+      background: #bdc3c7;
+      transform: none;
+    }
+    #darkmode-toggle {
+      font-size: 1.1rem;
+      padding: 10px 18px;
+      margin-top: 0;
+      background: #23262f;
+      color: #fff;
+      border-radius: 8px;
+      border: none;
+      box-shadow: 0 2px 8px #bbb;
+      transition: background 0.3s, color 0.3s, transform 0.2s;
+      cursor: pointer;
+      outline: none;
+    }
+    #darkmode-toggle:hover {
+      background: #181a20;
+      color: #ffe066;
+      transform: translateY(-1px);
+    }
+    #darkmode-toggle:focus {
+      outline: 2px solid #ffe066;
+      outline-offset: 2px;
+    }
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 24px;
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 400px;
+      background: inherit;
+      color: inherit;
+      transition: background 0.3s, color 0.3s;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 8px;
+      border: 1px solid #b3d1f3;
+      text-align: center;
+      font-size: 1.05em;
+    }
+    th {
+      background: #2980b9;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .error {
+      color: #c0392b;
+      margin-top: 18px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.1em;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(192, 57, 43, 0.1);
+      border: 1px solid rgba(192, 57, 43, 0.3);
+      animation: fadeIn 0.3s ease-in;
+    }
+    .container.darkmode .error {
+      color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+    }
+    .note {
+      margin-top: 10px;
+      color: #555;
+      font-style: italic;
+      background: #eaf6ff;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 1em;
+      transition: background 0.3s, color 0.3s;
+    }
+    @media (max-width: 600px) {
+      .container { 
+        padding: 20px 16px; 
+        margin: 0 16px 40px 16px;
+        max-width: none;
+      }
+      th, td { padding: 8px 6px; font-size: 0.9em; }
+      .actions { 
+        flex-direction: column; 
+        gap: 12px; 
+      }
+      button {
+        width: 100%;
+        padding: 14px 24px;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+    body.darkmode {
+      background: #181a20;
+      color: #e0e0e0;
+    }
+    header.darkmode {
+      background: linear-gradient(90deg, #23262f 0%, #181a20 100%);
+      color: #ffe066;
+    }
+    .container.darkmode {
+      background: #23262f;
+      color: #e0e0e0;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    }
+    .container.darkmode label {
+      color: #ffe066;
+    }
+    .container.darkmode select,
+    .container.darkmode input[type="number"] {
+      background: #181a20;
+      color: #e0e0e0;
+      border: 1px solid #404040;
+    }
+    .container.darkmode select:focus,
+    .container.darkmode input[type="number"]:focus {
+      border: 1.5px solid #ffe066;
+      background: #23262f;
+    }
+    .container.darkmode td {
+      border: 1px solid #404040;
+    }
+    td.darkmode {
+      border: 1px solid #404040;
+    }
+    .note.darkmode {
+      background: #181a20;
+      color: #b0b0b0;
+      border: 1px solid #404040;
+    }
+    th.darkmode {
+      background: #181a20;
+      color: #ffe066;
+      border: 1px solid #404040;
+    }
+    #darkmode-toggle.darkmode {
+      background: #ffe066;
+      color: #23262f;
+    }
+    #darkmode-toggle.darkmode:hover {
+      background: #ffd700;
+      color: #181a20;
+    }
+    #darkmode-toggle.darkmode:focus {
+      outline: 2px solid #23262f;
+    }
+  </style>
+</head>
+<body>
+  <header id="main-header">
+    <h1>HLU Converter</h1>
+    <div style="font-size:1.1em; font-weight:400; margin-top:8px;">Quy đổi điểm chuẩn các tổ hợp môn - Đại học Luật Hà Nội</div>
+  </header>
+  <div class="container" id="main-container">
+    <form id="ftu-form" autocomplete="off">
+      <div class="form-group">
+        <label for="case">Chọn loại chuyển đổi:</label>
+        <select id="case">
+          <option value="1">Từ tổ hợp khác sang D01</option>
+          <option value="2">Từ D01 sang tổ hợp khác</option>
+          <option value="3">Từ điểm thi tốt nghiệp THPT sang điểm học tập THPT</option>
+          <option value="4">Từ điểm học tập THPT sang điểm thi tốt nghiệp THPT</option>
+        </select>
+      </div>
+      <div id="note" class="note"></div>
+      <div class="form-group" id="combination-group" style="display: none;">
+        <label for="combination">Chọn tổ hợp môn:</label>
+        <select id="combination">
+          <option value="A00">A00 (+1,39 điểm)</option>
+          <option value="A01">A01 (+0,29 điểm)</option>
+          <option value="C00">C00 (+3,24 điểm)</option>
+          <option value="D02">D02, D03, D04, D05, D06 (0 điểm)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="score">Nhập điểm ban đầu:</label>
+        <input type="number" id="score" step="0.01" min="15" max="30" value="24.0">
+      </div>
+      <div class="actions">
+        <button type="button" onclick="convert()">Quy đổi điểm</button>
+        <button type="button" id="darkmode-toggle">🌙 Dark Mode</button>
+      </div>
+    </form>
+    <div id="error" class="error"></div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // HLU conversion data
+    const combinationDifferences = {
+      'A00': 1.39,
+      'A01': 0.29,
+      'C00': 3.24,
+      'D02': 0
+    };
+
+    // Score range conversions between graduation exam and academic scores
+    const scoreRanges = [
+      { graduationMin: 24.00, graduationMax: 30.00, academicMin: 27.50, academicMax: 30.00 },
+      { graduationMin: 22.00, graduationMax: 24.00, academicMin: 25.50, academicMax: 27.50 },
+      { graduationMin: 18.00, graduationMax: 22.00, academicMin: 21.50, academicMax: 25.50 }
+    ];
+
+    // Notes for each case
+    const notes = {
+      1: "Chuyển đổi từ điểm chuẩn tổ hợp khác về tổ hợp D01. Công thức: Điểm D01 = Điểm tổ hợp - Độ chênh điểm",
+      2: "Chuyển đổi từ điểm chuẩn D01 sang tổ hợp khác. Công thức: Điểm tổ hợp = Điểm D01 + Độ chênh điểm",
+      3: "Chuyển đổi từ điểm thi tốt nghiệp THPT sang điểm học tập THPT theo bảng quy đổi HLU",
+      4: "Chuyển đổi từ điểm học tập THPT sang điểm thi tốt nghiệp THPT theo bảng quy đổi HLU"
+    };
+
+    // Update options and note based on case
+    function updateOptions() {
+      const caseVal = document.getElementById('case').value;
+      const combinationGroup = document.getElementById('combination-group');
+      
+      // Show/hide combination selector for cases 1 and 2
+      if (caseVal === '1' || caseVal === '2') {
+        combinationGroup.style.display = 'block';
+      } else {
+        combinationGroup.style.display = 'none';
+      }
+      
+      // Update input limits based on conversion type
+      const scoreInput = document.getElementById('score');
+      if (caseVal === '3') {
+        scoreInput.min = '18';
+        scoreInput.max = '30';
+        scoreInput.value = '24.0';
+      } else if (caseVal === '4') {
+        scoreInput.min = '21.5';
+        scoreInput.max = '30';
+        scoreInput.value = '27.0';
+      } else {
+        scoreInput.min = '15';
+        scoreInput.max = '30';
+        scoreInput.value = '24.0';
+      }
+      
+      document.getElementById('note').textContent = notes[caseVal] || "";
+    }
+    
+    document.getElementById('case').addEventListener('change', updateOptions);
+    updateOptions();
+
+    // Add keyboard support
+    document.getElementById('score').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        convert();
+      }
+    });
+
+    // HLU Conversion functions
+    function convertCombinationToD01(inputScore, combination) {
+      const difference = combinationDifferences[combination];
+      return inputScore - difference;
+    }
+
+    function convertD01ToCombination(inputScore, combination) {
+      const difference = combinationDifferences[combination];
+      return inputScore + difference;
+    }
+
+    function convertGraduationToAcademic(inputScore) {
+      for (let range of scoreRanges) {
+        if (inputScore >= range.graduationMin && inputScore <= range.graduationMax) {
+          // Linear interpolation within the range
+          const ratio = (inputScore - range.graduationMin) / (range.graduationMax - range.graduationMin);
+          return range.academicMin + ratio * (range.academicMax - range.academicMin);
+        }
+      }
+      return null; // Score doesn't fall in any valid range
+    }
+
+    function convertAcademicToGraduation(inputScore) {
+      for (let range of scoreRanges) {
+        if (inputScore >= range.academicMin && inputScore <= range.academicMax) {
+          // Linear interpolation within the range
+          const ratio = (inputScore - range.academicMin) / (range.academicMax - range.academicMin);
+          return range.graduationMin + ratio * (range.graduationMax - range.graduationMin);
+        }
+      }
+      return null; // Score doesn't fall in any valid range
+    }
+
+    // Main convert function
+    function convert() {
+      const convertButton = document.querySelector('button[onclick="convert()"]');
+      const originalText = convertButton.textContent;
+      convertButton.textContent = 'Đang xử lý...';
+      convertButton.disabled = true;
+      
+      // Add small delay for visual feedback
+      setTimeout(() => {
+        const caseVal = document.getElementById('case').value;
+        const inputScore = parseFloat(document.getElementById('score').value);
+        const errorDiv = document.getElementById('error');
+        const resultDiv = document.getElementById('result');
+        errorDiv.textContent = '';
+        resultDiv.innerHTML = '';
+
+        if (isNaN(inputScore)) {
+          errorDiv.textContent = 'Vui lòng nhập điểm hợp lệ.';
+          convertButton.textContent = originalText;
+          convertButton.disabled = false;
+          return;
+        }
+
+        let result = null;
+        let fromMethod = '';
+        let toMethod = '';
+        let calculationDetail = '';
+        let combination = '';
+
+        switch (caseVal) {
+          case '1': // From other combination to D01
+            combination = document.getElementById('combination').value;
+            result = convertCombinationToD01(inputScore, combination);
+            fromMethod = `Tổ hợp ${combination}`;
+            toMethod = 'Tổ hợp D01';
+            calculationDetail = `Điểm D01 = ${inputScore} - ${combinationDifferences[combination]} = ${result.toFixed(2)}`;
+            break;
+          case '2': // From D01 to other combination
+            combination = document.getElementById('combination').value;
+            result = convertD01ToCombination(inputScore, combination);
+            fromMethod = 'Tổ hợp D01';
+            toMethod = `Tổ hợp ${combination}`;
+            calculationDetail = `Điểm ${combination} = ${inputScore} + ${combinationDifferences[combination]} = ${result.toFixed(2)}`;
+            break;
+          case '3': // From graduation exam to academic scores
+            result = convertGraduationToAcademic(inputScore);
+            fromMethod = 'Điểm thi tốt nghiệp THPT';
+            toMethod = 'Điểm học tập THPT';
+            if (result !== null) {
+              // Find which range was used
+              for (let range of scoreRanges) {
+                if (inputScore >= range.graduationMin && inputScore <= range.graduationMax) {
+                  calculationDetail = `Điểm ${inputScore} thuộc khoảng [${range.graduationMin} - ${range.graduationMax}] → quy đổi về [${range.academicMin} - ${range.academicMax}]`;
+                  break;
+                }
+              }
+            }
+            break;
+          case '4': // From academic scores to graduation exam
+            result = convertAcademicToGraduation(inputScore);
+            fromMethod = 'Điểm học tập THPT';
+            toMethod = 'Điểm thi tốt nghiệp THPT';
+            if (result !== null) {
+              // Find which range was used
+              for (let range of scoreRanges) {
+                if (inputScore >= range.academicMin && inputScore <= range.academicMax) {
+                  calculationDetail = `Điểm ${inputScore} thuộc khoảng [${range.academicMin} - ${range.academicMax}] → quy đổi về [${range.graduationMin} - ${range.graduationMax}]`;
+                  break;
+                }
+              }
+            }
+            break;
+        }
+
+        if (result === null) {
+          errorDiv.textContent = 'Điểm nhập vào không nằm trong khoảng hợp lệ. Vui lòng kiểm tra lại.';
+          convertButton.textContent = originalText;
+          convertButton.disabled = false;
+          return;
+        }
+
+        // Build result table
+        let html = '<div class="table-responsive"><table><tr>';
+        html += `<th${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>Điểm đầu vào</th>`;
+        html += `<th${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>Loại điểm</th>`;
+        html += `<th${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>Điểm quy đổi</th>`;
+        html += `<th${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>Loại điểm</th>`;
+        html += '</tr><tr>';
+        html += `<td${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>${inputScore.toFixed(2)}</td>`;
+        html += `<td${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>${fromMethod}</td>`;
+        html += `<td${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>${result.toFixed(2)}</td>`;
+        html += `<td${document.body.classList.contains('darkmode') ? ' class="darkmode"' : ''}>${toMethod}</td>`;
+        html += '</tr></table></div>';
+        
+        // Add calculation details
+        if (calculationDetail) {
+          html += `<div class="note${document.body.classList.contains('darkmode') ? ' darkmode' : ''}" style="margin-top: 15px; font-size: 0.9em;">`;
+          html += `<strong>Chi tiết tính toán:</strong><br>`;
+          html += calculationDetail;
+          html += `</div>`;
+        }
+        
+        resultDiv.innerHTML = html;
+        
+        convertButton.textContent = originalText;
+        convertButton.disabled = false;
+      }, 300);
+    }
+
+    // Dark mode toggle
+    const darkBtn = document.getElementById('darkmode-toggle');
+    const header = document.getElementById('main-header');
+    darkBtn.addEventListener('click', function() {
+      document.body.classList.toggle('darkmode');
+      document.getElementById('main-container').classList.toggle('darkmode');
+      document.getElementById('note').classList.toggle('darkmode');
+      header.classList.toggle('darkmode');
+      darkBtn.classList.toggle('darkmode');
+      // Re-render result table for darkmode
+      if (document.getElementById('result').innerHTML) convert();
+      darkBtn.textContent = document.body.classList.contains('darkmode') ? '☀️ Light Mode' : '🌙 Dark Mode';
+    });
+  </script>
+</body>
+</html>
